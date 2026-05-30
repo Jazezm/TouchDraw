@@ -16,16 +16,20 @@ const video = document.getElementById('webcam');
     let lastX = 0, lastY = 0;
     const lerpAmount = 0.35; 
 
-    // Handle high-density Retina displays smoothly by saving an unlinked cache array of lines if needed,
-    // or scaling drawing calculations across standard offsets.
+    // Completely lock mobile gestures at the Javascript level
+    document.addEventListener('touchstart', (e) => {
+        if(e.target.tagName !== 'BUTTON') e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+
     function initCanvasDimensions() {
-        const container = paintCanvas.parentElement;
+        const panel = paintCanvas.parentElement;
         
-        // Dynamic client boundary mapping
-        paintCanvas.width = container.clientWidth;
-        paintCanvas.height = container.clientHeight;
-        cursorCanvas.width = container.clientWidth;
-        cursorCanvas.height = container.clientHeight;
+        // Match drawing memory buffers exactly to visible client bounding positions
+        paintCanvas.width = panel.clientWidth;
+        paintCanvas.height = panel.clientHeight;
+        cursorCanvas.width = panel.clientWidth;
+        cursorCanvas.height = panel.clientHeight;
         
         updateBrushSettings();
     }
@@ -33,20 +37,14 @@ const video = document.getElementById('webcam');
     function updateBrushSettings() {
         paintCtx.lineCap = 'round';
         paintCtx.lineJoin = 'round';
-
         if (currentMode === 'draw') {
             paintCtx.globalCompositeOperation = 'source-over';
-            paintCtx.strokeStyle = varColor('--accent-pink', '#ff007f'); 
+            paintCtx.strokeStyle = '#ff007f'; 
             paintCtx.lineWidth = 6;
         } else if (currentMode === 'erase') {
             paintCtx.globalCompositeOperation = 'destination-out';
-            paintCtx.lineWidth = 35; // Wider brush for easier mobile erasing paths
+            paintCtx.lineWidth = 35;
         }
-    }
-
-    // Helper to extract native CSS variables dynamically for Canvas execution streams
-    function varColor(cssVar, fallback) {
-        return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
     }
 
     drawModeBtn.addEventListener('click', () => {
@@ -78,7 +76,7 @@ const video = document.getElementById('webcam');
         cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            statusText.innerText = "Tracking Connected! Pinch finger to draw.";
+            statusText.innerText = "Tracking Active! Pinch to paint.";
             
             const landmarks = results.multiHandLandmarks[0];
             const mirroredLandmarks = landmarks.map(lm => ({ ...lm, x: 1 - lm.x }));
@@ -89,7 +87,6 @@ const video = document.getElementById('webcam');
             const thumb = landmarks[4];
             const index = landmarks[8];
 
-            // Mapping raw input coordinates safely to variable pixel bounds
             const targetX = index.x * paintCanvas.width;
             const targetY = index.y * paintCanvas.height;
             const thumbX = thumb.x * paintCanvas.width;
@@ -99,13 +96,13 @@ const video = document.getElementById('webcam');
             lastY = lastY + (targetY - lastY) * lerpAmount;
 
             const distance = Math.hypot(targetX - thumbX, targetY - thumbY);
-            const pinchThreshold = 45; 
+            const pinchThreshold = 40; 
             const isPinching = distance < pinchThreshold;
 
             cursorCtx.beginPath();
             if (currentMode === 'draw') {
-                cursorCtx.arc(lastX, lastY, isPinching ? 6 : 14, 0, 2 * Math.PI);
-                cursorCtx.fillStyle = isPinching ? 'rgba(255, 0, 127, 0.9)' : 'rgba(255, 0, 127, 0.25)';
+                cursorCtx.arc(lastX, lastY, isPinching ? 5 : 12, 0, 2 * Math.PI);
+                cursorCtx.fillStyle = isPinching ? '#ff007f' : 'rgba(255, 0, 127, 0.2)';
                 cursorCtx.strokeStyle = '#ff007f';
             } else {
                 cursorCtx.arc(lastX, lastY, 18, 0, 2 * Math.PI);
@@ -129,7 +126,7 @@ const video = document.getElementById('webcam');
                 isDrawing = false;
             }
         } else {
-            statusText.innerText = "Point your camera at your hand...";
+            statusText.innerText = "Frame ready. Frame your hand inside the webcam box.";
             isDrawing = false;
         }
     }
@@ -139,27 +136,41 @@ const video = document.getElementById('webcam');
     });
     hands.setOptions({
         maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5, // Slightly optimized lower bar for mobile camera frames
+        modelComplexity: 0, // Lower model complexity to keep mobile CPU frames fast
+        minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
     });
     hands.onResults(onResults);
 
-    // Using browser defaults for mobile camera resolution adaptation
-    const camera = new Camera(video, {
-        onFrame: async () => { await hands.send({ image: video }); },
-        width: 640,
-        height: 480
-    });
-    
-    camera.start().then(() => {
-        statusText.innerText = "Calibrated. Ready!";
-        initCanvasDimensions();
+    // --- CRITICAL MOBILE WEBCAM INVOCATION ---
+    // Instead of using MediaPipe's rigid Camera helper object, we construct native constraints 
+    // to bypass iOS Safari autoplay blocking policies.
+    navigator.mediaDevices.getUserMedia({
+        video: {
+            facingMode: "user", // Forces selection of the FRONT camera
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+        },
+        audio: false
+    }).then(stream => {
+        video.srcObject = stream;
+        video.play();
+        statusText.innerText = "Webcam running. Synchronizing AI model...";
+        
+        // Loop processing frames manually onto the model background
+        async function processFrame() {
+            if (!video.paused && !video.ended) {
+                await hands.send({ image: video });
+            }
+            requestAnimationFrame(processFrame);
+        }
+        video.addEventListener('playing', () => {
+            initCanvasDimensions();
+            requestAnimationFrame(processFrame);
+        });
+    }).catch(err => {
+        statusText.innerText = "Camera Access Error: " + err.message;
     });
 
-    // Smart event handling for changing device screen rotation shapes
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(initCanvasDimensions, 200);
-    });
+    window.addEventListener('resize', initCanvasDimensions);
+    window.addEventListener('orientationchange', () => setTimeout(initCanvasDimensions, 300));

@@ -1,74 +1,74 @@
-/* Monokai & Pink Aesthetic Palette */
-        :root {
-            --bg-color: #1e1e24;
-            --workspace-bg: #141414;
-            --accent-pink: #ff007f; /* Sublime Pink */
+:root {
+            --bg-color: #141414;
+            --panel-bg: #272822;
+            --accent-pink: #ff007f;
             --accent-teal: #00ffcc;
             --text-main: #f8f8f2;
-            --panel-bg: #272822;    /* Monokai Gray */
-            --border-color: #3e3d32;
+        }
+
+        /* Force the page to lock to the screen bounds and stop all mobile dragging/bouncing */
+        html, body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            /* Disables pull-to-refresh and overscroll glow */
+            overscroll-behavior: none; 
+            touch-action: none;
+            -webkit-overflow-scrolling: auto;
         }
 
         body {
-            margin: 0;
-            background-color: var(--workspace-bg);
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            color: var(--text-main);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            height: -webkit-fill-available; /* Fixed viewport calculations for mobile Safari */
-            overflow: hidden;
         }
 
         header {
             background-color: #111;
-            padding: 12px 16px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            border-bottom: 2px solid var(--border-color);
+            gap: 6px;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         #status {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--accent-teal);
             text-align: center;
-            font-weight: 500;
+            font-weight: bold;
         }
 
         .controls {
             display: flex;
-            justify-content: center;
             gap: 8px;
-            width: 100%;
+            justify-content: center;
         }
 
-        /* Thumb-friendly action elements */
         button {
             flex: 1;
-            max-width: 120px;
-            min-height: 44px; /* Mobile accessibility minimum target standard */
-            padding: 6px 12px;
+            min-height: 44px; /* Essential mobile touch target size */
+            padding: 6px;
             background-color: var(--accent-pink);
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            font-size: 0.85rem;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        button:active {
-            transform: scale(0.96);
         }
 
         button.secondary {
             background-color: #3e3d32;
-            border: 1px solid var(--border-color);
-            color: #a6e22e; /* Monokai Green */
+            color: #a6e22e;
         }
 
         button.active-mode {
@@ -76,61 +76,50 @@
             color: #111;
         }
 
-        /* Flexbox Workspace Grid mapping */
         #workspace {
             display: flex;
-            flex-direction: row; /* Default layout for desktop sizes */
+            flex-direction: column; /* Vertical stacking for mobile screens */
             flex: 1;
-            padding: 16px;
-            gap: 16px;
+            position: relative;
             overflow: hidden;
-        }
-
-        .panel {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--panel-bg);
-            border-radius: 12px;
             padding: 8px;
-            border: 1px solid var(--border-color);
+            gap: 8px;
         }
 
-        .panel h3 {
-            margin: 0 0 8px 4px;
-            font-size: 0.8rem;
-            color: #75715e;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        /* Top Bar Tracker Window */
         #inputPanel {
-            flex: 4;
+            height: 110px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
         #uiCanvas {
-            width: 100%;
-            height: auto;
-            max-height: 100%;
-            border-radius: 8px;
+            height: 100%;
+            width: auto;
             background-color: #000;
-            object-fit: contain;
         }
 
         #webcam {
             display: none;
         }
 
+        /* Main Workspace Drawing Board Window */
         #canvasPanel {
-            flex: 6; 
+            flex: 1;
             position: relative;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .canvas-stack {
-            position: relative;
-            flex: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
         }
@@ -141,7 +130,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 8px;
         }
 
         #paintCanvas {
@@ -152,39 +140,4 @@
         #cursorCanvas {
             background-color: transparent;
             z-index: 2;
-            pointer-events: none;
-        }
-
-        /* --- MOBILE MEDIA QUERY BREAKPOINT --- */
-        @media (max-width: 768px) {
-            header {
-                padding: 10px;
-            }
-            
-            #workspace {
-                flex-direction: column; /* Vertical stack flip */
-                padding: 10px;
-                gap: 12px;
-            }
-
-            /* Shrink tracking window to preserve whiteboard painting canvas bounds */
-            #inputPanel {
-                flex: none;
-                height: 140px; 
-                width: 100%;
-            }
-
-            #uiCanvas {
-                width: auto;
-                height: 100%;
-            }
-
-            #canvasPanel {
-                flex: 1; /* Whiteboard takes up all remaining viewport scale */
-            }
-            
-            button {
-                font-size: 0.85rem;
-                min-height: 46px; /* Slightly taller targets for smaller handheld display boundaries */
-            }
         }
