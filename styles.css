@@ -184,7 +184,6 @@ canvas.board {
     }
 
     #workspace {
-        flex-direction: column;
         padding: 10px;
         gap: 10px;
     }
@@ -236,11 +235,13 @@ canvas.board {
     }
 
     #inputPanel {
-        min-height: 120px;
+        flex: 0.4;
+        min-height: 100px;
     }
 
     #canvasPanel {
-        min-height: 280px;
+        flex: 1.6;
+        min-height: 200px;
     }
 
     #uiCanvas {
