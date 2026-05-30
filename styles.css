@@ -190,13 +190,13 @@ canvas.board {
     }
 
     #inputPanel {
-        flex: 1;
-        min-height: 250px;
+        flex: 0.5;
+        min-height: 150px;
     }
 
     #canvasPanel {
-        flex: 1;
-        min-height: 250px;
+        flex: 1.5;
+        min-height: 300px;
     }
 }
 
@@ -236,11 +236,11 @@ canvas.board {
     }
 
     #inputPanel {
-        min-height: 200px;
+        min-height: 120px;
     }
 
     #canvasPanel {
-        min-height: 200px;
+        min-height: 280px;
     }
 
     #uiCanvas {
