@@ -154,9 +154,9 @@ function onResults(results) {
         const index = landmarks[8];
 
         // Inverted whiteboard drawing space calculation
-        const targetX = index.x * paintCanvas.width;
+        const targetX = (1 - index.x) * paintCanvas.width;
         const targetY = index.y * paintCanvas.height;
-        const thumbX = thumb.x * paintCanvas.width;
+        const thumbX = (1 - thumb.x) * paintCanvas.width;
         const thumbY = thumb.y * paintCanvas.height;
 
         lastX = lastX + (targetX - lastX) * lerpAmount;

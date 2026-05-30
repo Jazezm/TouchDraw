@@ -104,7 +104,7 @@ button.active-mode:hover {
 }
 
 #inputPanel {
-    flex: 4;
+    flex: 1;
     min-width: 200px;
 }
 
@@ -120,7 +120,7 @@ button.active-mode:hover {
 }
 
 #canvasPanel {
-    flex: 6;
+    flex: 5;
     position: relative;
     min-width: 200px;
 }
