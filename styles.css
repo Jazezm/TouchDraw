@@ -1,103 +1,140 @@
- body {
+/* Monokai & Pink Aesthetic Palette */
+        :root {
+            --bg-color: #1e1e24;
+            --workspace-bg: #141414;
+            --accent-pink: #ff007f; /* Sublime Pink */
+            --accent-teal: #00ffcc;
+            --text-main: #f8f8f2;
+            --panel-bg: #272822;    /* Monokai Gray */
+            --border-color: #3e3d32;
+        }
+
+        body {
             margin: 0;
-            background-color: #1a1a1a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
+            background-color: var(--workspace-bg);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: -webkit-fill-available; /* Fixed viewport calculations for mobile Safari */
             overflow: hidden;
         }
+
         header {
             background-color: #111;
-            padding: 15px 20px;
+            padding: 12px 16px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #2d2d34;
+            flex-direction: column;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
         }
+
         #status {
-            font-size: 1.1rem;
-            color: #00ffcc;
+            font-size: 0.95rem;
+            color: var(--accent-teal);
+            text-align: center;
+            font-weight: 500;
         }
+
         .controls {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
         }
+
+        /* Thumb-friendly action elements */
         button {
-            padding: 10px 20px;
-            background-color: #ff007f;
+            flex: 1;
+            max-width: 120px;
+            min-height: 44px; /* Mobile accessibility minimum target standard */
+            padding: 6px 12px;
+            background-color: var(--accent-pink);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
-        button:hover {
-            background-color: #e0006c;
-        }
+
         button:active {
-            transform: scale(0.98);
+            transform: scale(0.96);
         }
+
         button.secondary {
-            background-color: #3a3a42;
-            border: 1px solid #5a5a66;
+            background-color: #3e3d32;
+            border: 1px solid var(--border-color);
+            color: #a6e22e; /* Monokai Green */
         }
-        button.secondary:hover {
-            background-color: #4a4a54;
-        }
+
         button.active-mode {
-            background-color: #00ffcc;
+            background-color: var(--accent-teal);
             color: #111;
         }
-        button.active-mode:hover {
-            background-color: #00ddaa;
-        }
+
+        /* Flexbox Workspace Grid mapping */
         #workspace {
             display: flex;
+            flex-direction: row; /* Default layout for desktop sizes */
             flex: 1;
-            padding: 20px;
-            gap: 20px;
-            background-color: #141414;
+            padding: 16px;
+            gap: 16px;
+            overflow: hidden;
         }
+
         .panel {
             display: flex;
             flex-direction: column;
-            background-color: #1e1e24;
+            background-color: var(--panel-bg);
             border-radius: 12px;
-            padding: 10px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            padding: 8px;
+            border: 1px solid var(--border-color);
         }
+
         .panel h3 {
-            margin: 0 0 10px 5px;
-            font-size: 1rem;
-            color: #aaa;
+            margin: 0 0 8px 4px;
+            font-size: 0.8rem;
+            color: #75715e;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
         #inputPanel {
             flex: 4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         #uiCanvas {
             width: 100%;
             height: auto;
+            max-height: 100%;
             border-radius: 8px;
             background-color: #000;
+            object-fit: contain;
         }
+
         #webcam {
             display: none;
         }
+
         #canvasPanel {
             flex: 6; 
             position: relative;
         }
+
         .canvas-stack {
             position: relative;
             flex: 1;
             width: 100%;
             height: 100%;
         }
+
         canvas.board {
             position: absolute;
             top: 0;
@@ -106,12 +143,48 @@
             height: 100%;
             border-radius: 8px;
         }
+
         #paintCanvas {
             background-color: #ffffff;
             z-index: 1;
         }
+
         #cursorCanvas {
             background-color: transparent;
             z-index: 2;
             pointer-events: none;
+        }
+
+        /* --- MOBILE MEDIA QUERY BREAKPOINT --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px;
+            }
+            
+            #workspace {
+                flex-direction: column; /* Vertical stack flip */
+                padding: 10px;
+                gap: 12px;
+            }
+
+            /* Shrink tracking window to preserve whiteboard painting canvas bounds */
+            #inputPanel {
+                flex: none;
+                height: 140px; 
+                width: 100%;
+            }
+
+            #uiCanvas {
+                width: auto;
+                height: 100%;
+            }
+
+            #canvasPanel {
+                flex: 1; /* Whiteboard takes up all remaining viewport scale */
+            }
+            
+            button {
+                font-size: 0.85rem;
+                min-height: 46px; /* Slightly taller targets for smaller handheld display boundaries */
+            }
         }
