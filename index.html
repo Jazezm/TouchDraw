@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Canvas with Eraser</title>
+      <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+       
+    </style>
+</head>
+<body>
+
+    <header>
+        <div id="status">Starting camera stream...</div>
+        <div class="controls">
+            <button id="drawModeBtn" class="active-mode">Brush Mode</button>
+            <button id="eraseModeBtn" class="secondary">Eraser Mode</button>
+            <button id="clearBtn" class="secondary">Clear All</button>
+        </div>
+    </header>
+    
+    <div id="workspace">
+        <div class="panel" id="inputPanel">
+            <h3>Camera Tracking Input</h3>
+            <video id="webcam" autoplay playsinline></video>
+            <canvas id="uiCanvas" width="640" height="480"></canvas>
+        </div>
+        
+        <div class="panel" id="canvasPanel">
+            <h3>Air Paint Canvas</h3>
+            <div class="canvas-stack">
+                <canvas id="paintCanvas" class="board"></canvas>
+                <canvas id="cursorCanvas" class="board"></canvas>
+            </div>
+        </div>
+    </div>
+<script src="script.js" defer></script>
+   
+</body>
+</html>
